@@ -44,6 +44,7 @@ object ColumnsAndExpressions extends App {
     weightInKgExpression.as("Weight_in_kg"),
     expr("Weight_in_lbs / 2.2").as("Weight_in_kg_2")
   )
+  carsWithWeightsDF.show()
 
   // selectExpr
   val carsWithSelectExprWeightsDF = carsDF.selectExpr(
@@ -51,6 +52,8 @@ object ColumnsAndExpressions extends App {
     "Weight_in_lbs",
     "Weight_in_lbs / 2.2"
   )
+
+  carsWithSelectExprWeightsDF.show()
 
   // DF processing
 
@@ -77,8 +80,12 @@ object ColumnsAndExpressions extends App {
   val moreCarsDF = spark.read.option("inferSchema", "true").json("src/main/resources/data/more_cars.json")
   val allCarsDF = carsDF.union(moreCarsDF) // works if the DFs have the same schema
 
+  allCarsDF.distinct().show()
+
   // distinct values
   val allCountriesDF = carsDF.select("Origin").distinct()
+
+  allCountriesDF.show()
 
   /**
     * Exercises
@@ -124,6 +131,8 @@ object ColumnsAndExpressions extends App {
   val moviesProfitDF3 = moviesDF.select("Title", "US_Gross", "Worldwide_Gross")
     .withColumn("Total_Gross", col("US_Gross") + col("Worldwide_Gross"))
 
+  moviesProfitDF3.sort($"Total_Gross".desc).show()
+
   // 3
   val atLeastMediocreComediesDF = moviesDF.select("Title", "IMDB_Rating")
     .where(col("Major_Genre") === "Comedy" and col("IMDB_Rating") > 6)
@@ -135,5 +144,5 @@ object ColumnsAndExpressions extends App {
   val comediesDF3 = moviesDF.select("Title", "IMDB_Rating")
     .where("Major_Genre = 'Comedy' and IMDB_Rating > 6")
 
-  comediesDF3.show
+  comediesDF3.sort($"IMDB_Rating".desc, $"Title".asc).show(50)
 }
