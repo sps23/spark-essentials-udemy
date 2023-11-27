@@ -62,8 +62,9 @@ object Aggregations extends App {
       count("*").as("N_Movies"),
       avg("IMDB_Rating").as("Avg_Rating")
     )
-    .orderBy(col("Avg_Rating"))
+    .orderBy(col("Avg_Rating").desc_nulls_last)
 
+  aggregationsByGenreDF.show(50)
 
   /**
     * Exercises
@@ -96,10 +97,16 @@ object Aggregations extends App {
   moviesDF
     .groupBy("Director")
     .agg(
+      count("*").as("N_Movies"),
       avg("IMDB_Rating").as("Avg_Rating"),
+      avg("US_Gross").as("Avg_US_Gross"),
       sum("US_Gross").as("Total_US_Gross")
     )
-    .orderBy(col("Avg_Rating").desc_nulls_last)
+    .orderBy(
+      col("N_Movies").desc,
+      col("Avg_US_Gross").desc,
+      col("Avg_Rating").desc_nulls_last
+    )
     .show()
 
 }
